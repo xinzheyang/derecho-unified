@@ -140,29 +140,27 @@ public:
 class ObjStore : public mutils::ByteRepresentable, public derecho::PersistsFields {
 public:
     Persistent<std::vector<OSObject>> objects;
+    std::unordered_map<uint64_t, std::size_t> oid_map;  // map from oid to vector index
     const OSObject inv_obj;
 
-    void put(const OSObject & obj) {
-        for (OSObject & o : *objects) {
-            if ( o == obj ) {
-                Blob tmp(obj.blob); // create
-                o.blob = std::move(tmp); // swap.
-                return;
-            }
+    void put(const OSObject& obj) {
+        if(oid_map.find(obj.oid) == oid_map.end()) {  // not found in oid_map
+            objects->emplace_back(obj);
+            oid_map.insert({obj.oid, objects->size() - 1});
+        } else {
+            size_t vec_index = oid_map.at(obj.oid);
+            Blob tmp(obj.blob);                            // create
+            objects->at(vec_index).blob = std::move(tmp);  // swap.
         }
-        // we didn't find it. insert...
-        objects->emplace_back(obj);
     }
 
-    // This get is SUPER inefficient
-    // Passing an output buffer??
     const OSObject get(const uint64_t oid) {
-        for(OSObject & o : *objects) {
-            if ( o.oid == oid ) {
-                return o;
-            }
+        if(oid_map.find(oid) == oid_map.end()) {  // not found in oid_map
+            return this->inv_obj;
+        } else {
+            size_t vec_index = oid_map.at(oid);
+            return objects->at(vec_index);
         }
-        return this->inv_obj;
     }
 
     enum Functions { PUT_OBJ, GET_OBJ };
