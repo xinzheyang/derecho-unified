@@ -26,9 +26,9 @@ int main(int argc, char** argv) {
     clock_gettime(CLOCK_REALTIME, &t_start);
     for(int i = 0; i < num_msg; i++) {
         objectstore::Object object(i, odata, msg_size + 1);
-        oss.put(object);
+        oss.bio_put(object);
     }
-    oss.get(num_msg - 1);
+    oss.bio_get(num_msg - 1);
     clock_gettime(CLOCK_REALTIME, &t_end);
     long long int nsec = (t_end.tv_sec - t_start.tv_sec) * 1000000000 + (t_end.tv_nsec - t_start.tv_nsec);
     double msec = (double)nsec / 1000000;
