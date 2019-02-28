@@ -10,7 +10,7 @@ int main(int argc, char** argv) {
     // oss - objectstore service
     auto& oss = objectstore::IObjectStoreService::getObjectStoreService(argc, argv,
                                                                         [&](const objectstore::OID& oid, const objectstore::Object& object) {
-                                                                            // std::cout << "watcher: " << oid << "->" << object << std::endl;
+                                                                            //std::cout << "watcher: " << oid << "->" << object << std::endl;
                                                                         });
     // print some message
     std::cout << "Object store service started. Is replica:" << std::boolalpha << oss.isReplica()
@@ -28,20 +28,20 @@ int main(int argc, char** argv) {
         odata[i] = 'A';
     }
 
-    objectstore::Object* objpool[num_msg];
+    std::vector<objectstore::Object> objpool;
     for(int i = 0; i < num_msg; i++) {
-        objectstore::Object object(i, odata, msg_size + 1);
-        objpool[i] = &object;
+        objpool.push_back(objectstore::Object(i, odata, msg_size + 1));
     }
+    
     // trial run to get an approximate number of objects to reach runtime
     clock_gettime(CLOCK_REALTIME, &t_start);
     if(use_aio) {
         for(int i = 0; i < num_msg; i++) {
-            oss.aio_put(*objpool[i]);
+            oss.aio_put(objpool[i]);
         }
     } else {
         for(int i = 0; i < num_msg; i++) {
-            oss.bio_put(*objpool[i]);
+            oss.bio_put(objpool[i]);
         }
     }
     oss.bio_get(num_msg - 1);
@@ -49,16 +49,17 @@ int main(int argc, char** argv) {
 
     long long int nsec = (t_end.tv_sec - t_start.tv_sec) * 1000000000 + (t_end.tv_nsec - t_start.tv_nsec);
     double msec = (double)nsec / 1000000;
-    int multiplier = ceil(msec / runtime);
-
+    std::cout << msec<< std::endl;
+    int multiplier = ceil(runtime/msec);
+	std::cout << multiplier << std::endl;
     clock_gettime(CLOCK_REALTIME, &t_start);
     if(use_aio) {
         for(int i = 0; i < num_msg * multiplier; i++) {
-            oss.aio_put(*objpool[i]);
+            oss.aio_put(objpool[i]);
         }
     } else {
         for(int i = 0; i < num_msg * multiplier; i++) {
-            oss.bio_put(*objpool[i]);
+            oss.bio_put(objpool[i]);
         }
     }
     oss.bio_get(num_msg - 1);
