@@ -25,7 +25,6 @@ int main(int argc, char** argv) {
     int num_msg = 10000;      // num_msg sent for the trial run
     uint64_t max_msg_size = derecho::getConfUInt64(CONF_DERECHO_MAX_PAYLOAD_SIZE);
     int msg_size = max_msg_size - 128;
-
     char odata[msg_size];
     for(int i = 0; i < msg_size; i++) {
         odata[i] = 'A';
