@@ -436,9 +436,13 @@ namespace sst{
       // dbg_default_flush();
   
       if(op == 1) { //write
-        FAIL_IF_NONZERO(ret = fi_writemsg(this->ep,&msg,(completion)?FI_COMPLETION:0),
-          "fi_writemsg failed.",
-          REPORT_ON_FAILURE);
+        // FAIL_IF_NONZERO(ret = fi_writemsg(this->ep,&msg,(completion)?FI_COMPLETION:0),
+        //   "fi_writemsg failed.",
+        //   REPORT_ON_FAILURE);
+        do {
+          ret = fi_writemsg(this->ep,&msg,(completion)?FI_COMPLETION:0);
+        } while(ret == -FI_EAGAIN);
+        FAIL_IF_NONZERO(ret,"fi_wrigemsg failed.",REPORT_ON_FAILURE);
       } else { // read op==0
         FAIL_IF_NONZERO(ret = fi_readmsg(this->ep,&msg,(completion)?FI_COMPLETION:0),
           "fi_readmsg failed.",
