@@ -2,14 +2,24 @@
 #include "conf/conf.hpp"
 #include <iostream>
 #include <time.h>
-#define NUM_OF_APP_ARGS 1
+#define NUM_APP_ARGS (1)
 
 int main(int argc, char** argv) {
-    struct timespec t_start, t_end;
-    bool use_aio = true;
-    if(strcmp("aio", argv[argc - 1]) != 0) {
-        use_aio = false;
+    if ( (argc < (NUM_APP_ARGS + 1)) || 
+         ((argc > (NUM_APP_ARGS + 1)) && strcmp("--", argv[argc - NUM_APP_ARGS - 1])) ) {
+        std::cerr << "Usage: " << argv [0] << " [ derecho-config-list -- ] <aio|bio>" << std::endl;
+        return -1;
     }
+
+    bool use_aio = false;
+    if(strcmp("aio", argv[argc - NUM_APP_ARGS]) == 0) {
+        use_aio = true;
+    } else if ( strcmp("bio", argv[argc - NUM_APP_ARGS]) != 0 ) {
+        std::cerr << "unrecognized argument:" << argv[argc - NUM_APP_ARGS] << ". Using bio (blocking io) instead." <<
+        std::endl;
+    }
+
+    struct timespec t_start, t_end;
     derecho::Conf::initialize(argc, argv);
     std::cout << "Starting object store service..." << std::endl;
     // oss - objectstore service
@@ -33,7 +43,6 @@ int main(int argc, char** argv) {
     for(int i = 0; i < msg_size; i++) {
         odata[i] = '1' + (rand() % 74);
     }
-
     // create a pool of objects
     std::vector<objectstore::Object> objpool;
     for(int i = 0; i < num_msg; i++) {

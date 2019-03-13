@@ -26,7 +26,7 @@ add_executable(objectstore_test test.cpp)
 target_link_libraries(objectstore_test objectstore)
 add_dependencies(objectstore_test objectstore)
 
-# objectstore performance
+# objectstore performance tester
 add_executable(objectstore_performance performance.cpp)
 target_link_libraries(objectstore_performance objectstore)
 add_dependencies(objectstore_performance objectstore)
