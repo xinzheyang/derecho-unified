@@ -5,18 +5,16 @@
 #define NUM_APP_ARGS (1)
 
 int main(int argc, char** argv) {
-    if ( (argc < (NUM_APP_ARGS + 1)) || 
-         ((argc > (NUM_APP_ARGS + 1)) && strcmp("--", argv[argc - NUM_APP_ARGS - 1])) ) {
-        std::cerr << "Usage: " << argv [0] << " [ derecho-config-list -- ] <aio|bio>" << std::endl;
+    if((argc < (NUM_APP_ARGS + 1)) || ((argc > (NUM_APP_ARGS + 1)) && strcmp("--", argv[argc - NUM_APP_ARGS - 1]))) {
+        std::cerr << "Usage: " << argv[0] << " [ derecho-config-list -- ] <aio|bio>" << std::endl;
         return -1;
     }
 
     bool use_aio = false;
     if(strcmp("aio", argv[argc - NUM_APP_ARGS]) == 0) {
         use_aio = true;
-    } else if ( strcmp("bio", argv[argc - NUM_APP_ARGS]) != 0 ) {
-        std::cerr << "unrecognized argument:" << argv[argc - NUM_APP_ARGS] << ". Using bio (blocking io) instead." <<
-        std::endl;
+    } else if(strcmp("bio", argv[argc - NUM_APP_ARGS]) != 0) {
+        std::cerr << "unrecognized argument:" << argv[argc - NUM_APP_ARGS] << ". Using bio (blocking io) instead." << std::endl;
     }
 
     struct timespec t_start, t_end;
@@ -35,9 +33,9 @@ int main(int argc, char** argv) {
     int num_msg = 10000;      // num_msg sent for the trial run
     uint64_t max_msg_size = derecho::getConfUInt64(CONF_DERECHO_MAX_PAYLOAD_SIZE);
     int msg_size = max_msg_size - 128;
-    if (msg_size > 2000000) {
-	num_msg = 5000;
-	}
+    if(msg_size > 2000000) {
+        num_msg = 5000;
+    }
     char odata[msg_size];
     srand(time(0));
     for(int i = 0; i < msg_size; i++) {
@@ -88,7 +86,7 @@ int main(int argc, char** argv) {
         msec = (double)nsec / 1000000;
     }
     std::cout << "num_msg" << num_msg << std::endl;
-    std::cout << "multi" << multiplier << std::endl; 
+    std::cout << "multi" << multiplier << std::endl;
     double thp_mBps = ((double)max_msg_size * num_msg * multiplier * 1000) / nsec;
     double thp_ops = ((double)num_msg * multiplier * 1000000000) / nsec;
     std::cout << "timespan:" << msec << " millisecond." << std::endl;
