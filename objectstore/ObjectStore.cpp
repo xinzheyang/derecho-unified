@@ -420,14 +420,14 @@ public:
         if(dsm != nullptr) {
             try {
                 return std::make_unique<DeltaObjectStoreCore>(
-                    std::move(*mutils::from_bytes<decltype(objects)>(dsm, buf).get()),
-                    dsm->mgr<IObjectStoreService>().getObjectWatcher());
+                        std::move(*mutils::from_bytes<decltype(objects)>(dsm, buf).get()),
+                        dsm->mgr<IObjectStoreService>().getObjectWatcher());
             } catch(...) {
             }
         }
         return std::make_unique<DeltaObjectStoreCore>(
-            std::move(*mutils::from_bytes<decltype(objects)>(dsm, buf).get()),
-            (ObjectWatcher){});
+                std::move(*mutils::from_bytes<decltype(objects)>(dsm, buf).get()),
+                (ObjectWatcher){});
     }
 
     DEFAULT_DESERIALIZE_NOALLOC(DeltaObjectStoreCore);
@@ -553,12 +553,12 @@ public:
     // @override IObjectStoreAPI::get_by_time
     virtual const Object get_by_time(const OID& oid, const uint64_t& ts_us) {
         dbg_default_debug("get_by_time, oid={}, ts={}.", oid, ts_us);
-        const HLC hlc(ts_us,0ull); // generate a hybrid logical clock: TODO: do we have to use HLC????
-        try{
+        const HLC hlc(ts_us, 0ull);  // generate a hybrid logical clock: TODO: do we have to use HLC????
+        try {
             return persistent_objectstore.get(hlc)->objects.at(oid);
-        } catch (const int64_t &ex) {
+        } catch(const int64_t& ex) {
             dbg_default_warn("temporal query throws exception:0x{:x}. oid={}, ts={}", ex, oid, ts_us);
-        } catch (...) {
+        } catch(...) {
             dbg_default_warn("temporal query throws unknown exception. oid={}, ts={}", oid, ts_us);
         }
         return inv_obj;
@@ -663,7 +663,7 @@ public:
                                                           {
                                                                   [this](const std::type_index& subgroup_type,
                                                                          const std::unique_ptr<derecho::View>& prev_view,
-                                                                         derecho::View& curr_view) {
+                                                                         derecho::View & curr_view) {
                                                                       if(subgroup_type == std::type_index(typeid(VolatileUnloggedObjectStore)) || subgroup_type == std::type_index(typeid(PersistentLoggedObjectStore))) {
                                                                           std::vector<node_id_t> active_replicas;
                                                                           for(uint32_t i = 0; i < curr_view.members.size(); i++) {
@@ -838,7 +838,7 @@ public:
     template <typename T>
     derecho::rpc::QueryResults<const Object> _aio_get(const OID& oid, const uint64_t& ts_us) {
         std::lock_guard<std::mutex> guard(write_mutex);
-        if (bReplica) {
+        if(bReplica) {
             // send to myself.
             derecho::Replicated<T>& os_rpc_handle = group.template get_subgroup<T>();
             return std::move(os_rpc_handle.template p2p_send<RPC_NAME(get_by_time)>(myid, oid, ts_us));
@@ -917,7 +917,10 @@ public:
         }
     }
 
-    virtual void leave() {
+    virtual void leave(bool grace) {
+        if(grace) {
+            group.barrier_sync();
+        }
         group.leave();
     }
 
