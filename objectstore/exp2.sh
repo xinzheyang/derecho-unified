@@ -2,7 +2,7 @@
 rm -rf exptwo
 sizes=(10240 1024000 102400000)
 windows=(100 16 3)
-num_objs=(100000 10000 1000)
+num_objs=(1000000 10000 1000)
 
 for i in {0..2}
 do
