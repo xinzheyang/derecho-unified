@@ -50,9 +50,6 @@ int main(int argc, char** argv) {
 
             objpool.push_back(objectstore::Object(i, odata, msg_size + 1));
         }
-	std::cout << objpool[0] << std::endl;
-	std::cout << objpool[1] << std::endl;
-	std::cout << objpool[2000] << std::endl;
         clock_gettime(CLOCK_REALTIME, &t_start);
         if(use_aio) {
             for(uint64_t i = 0; i < num_msg; i++) {
