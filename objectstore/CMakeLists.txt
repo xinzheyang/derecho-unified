@@ -31,6 +31,11 @@ add_executable(objectstore_performance performance.cpp)
 target_link_libraries(objectstore_performance objectstore)
 add_dependencies(objectstore_performance objectstore)
 
+# objectstore performance tester fixed num objects
+add_executable(objectstore_fixnumobj fixnumobj.cpp)
+target_link_libraries(objectstore_fixnumobj objectstore)
+add_dependencies(objectstore_fixnumobj objectstore)
+
 find_package(Java QUIET)
 find_package(JNI QUIET)
 if(Java_FOUND AND JNI_FOUND)
