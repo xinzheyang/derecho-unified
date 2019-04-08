@@ -20,22 +20,21 @@ int main(int argc, char** argv) {
     struct timespec t_start, t_end;
     derecho::Conf::initialize(argc, argv);
     std::cout << "Starting object store service..." << std::endl;
-    // oss - objectstore service
 
+    uint64_t num_msg = std::stoi(argv[argc - 2]);
     bool issender = std::stoi(argv[argc - 1]);
-    int counter_nonsender = 0;
-
+    volatile bool done = false;
+    // oss - objectstore service
     auto& oss = objectstore::IObjectStoreService::getObjectStoreService(argc, argv,
                                                                         [&](const objectstore::OID& oid, const objectstore::Object& object) {
-                                                                            if(!issender) {
-                                                                                counter_nonsender++;
+                                                                            if(oid == num_msg - 1) {
+                                                                                done = true;
                                                                             }
                                                                         });
     // print some message
     std::cout << "Object store service started. Is replica:" << std::boolalpha << oss.isReplica()
               << std::noboolalpha << "." << std::endl;
 
-    int num_msg = std::stoi(argv[argc - 2]);
     uint64_t max_msg_size = derecho::getConfUInt64(CONF_DERECHO_MAX_PAYLOAD_SIZE);
     int msg_size = max_msg_size - 128;
 
@@ -47,18 +46,18 @@ int main(int argc, char** argv) {
         }
         // create a pool of objects
         std::vector<objectstore::Object> objpool;
-        for(int i = 0; i < num_msg; i++) {
+        for(uint64_t i = 0; i < num_msg; i++) {
             objpool.push_back(objectstore::Object(i, odata, msg_size + 1));
         }
 
         // trial run to get an approximate number of objects to reach runtime
         clock_gettime(CLOCK_REALTIME, &t_start);
         if(use_aio) {
-            for(int i = 0; i < num_msg; i++) {
+            for(uint64_t i = 0; i < num_msg; i++) {
                 oss.aio_put(objpool[i]);
             }
         } else {
-            for(int i = 0; i < num_msg; i++) {
+            for(uint64_t i = 0; i < num_msg; i++) {
                 oss.bio_put(objpool[i]);
             }
         }
@@ -76,7 +75,7 @@ int main(int argc, char** argv) {
         std::cout << std::flush;
         oss.leave();
     } else {
-        while(num_msg != counter_nonsender) {
+        while(!done) {
         }
         oss.leave();
     }
