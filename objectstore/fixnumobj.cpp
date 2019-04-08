@@ -39,26 +39,28 @@ int main(int argc, char** argv) {
     int msg_size = max_msg_size - 128;
 
     if(issender) {
-        char odata[msg_size];
-        srand(time(0));
-        for(int i = 0; i < msg_size; i++) {
-            odata[i] = '1' + (rand() % 74);
-        }
         // create a pool of objects
         std::vector<objectstore::Object> objpool;
-        for(uint64_t i = 0; i < num_msg; i++) {
+        for(uint64_t i = 0; i < 10000; i++) {
+            char odata[msg_size];
+            srand(time(0)+i);
+            for(int i = 0; i < msg_size; i++) {
+                odata[i] = '1' + (rand() % 74);
+            }
+
             objpool.push_back(objectstore::Object(i, odata, msg_size + 1));
         }
-
-        // trial run to get an approximate number of objects to reach runtime
+	std::cout << objpool[0] << std::endl;
+	std::cout << objpool[1] << std::endl;
+	std::cout << objpool[2000] << std::endl;
         clock_gettime(CLOCK_REALTIME, &t_start);
         if(use_aio) {
             for(uint64_t i = 0; i < num_msg; i++) {
-                oss.aio_put(objpool[i]);
+                oss.aio_put(objpool[i % 10000]);
             }
         } else {
             for(uint64_t i = 0; i < num_msg; i++) {
-                oss.bio_put(objpool[i]);
+                oss.bio_put(objpool[i % 10000]);
             }
         }
         oss.bio_get(num_msg - 1);
@@ -67,10 +69,10 @@ int main(int argc, char** argv) {
         long long int nsec = (t_end.tv_sec - t_start.tv_sec) * 1000000000 + (t_end.tv_nsec - t_start.tv_nsec);
         double msec = (double)nsec / 1000000;
 
-        double thp_mBps = ((double)max_msg_size * num_msg * 1000) / nsec;
+        double thp_GBps = ((double)max_msg_size * num_msg) / nsec;
         double thp_ops = ((double)num_msg * 1000000000) / nsec;
         std::cout << "timespan:" << msec << " millisecond." << std::endl;
-        std::cout << "throughput:" << thp_mBps << "MB/s." << std::endl;
+        std::cout << "throughput:" << thp_GBps << "GB/s." << std::endl;
         std::cout << "throughput:" << thp_ops << "op/s." << std::endl;
         std::cout << std::flush;
         oss.leave();
