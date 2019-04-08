@@ -24,7 +24,7 @@ int main(int argc, char** argv) {
     uint64_t num_msg = std::stoi(argv[argc - 2]);
     bool issender = std::stoi(argv[argc - 1]);
     volatile bool done = false;
-    uint64_t counter = 0;
+    volatile uint64_t counter = 0;
     // oss - objectstore service
     auto& oss = objectstore::IObjectStoreService::getObjectStoreService(argc, argv,
                                                                         [&](const objectstore::OID& oid, const objectstore::Object& object) {
@@ -76,7 +76,7 @@ int main(int argc, char** argv) {
         std::cout << std::flush;
         oss.leave();
     } else {
-        while(counter >= num_msg) {
+        while(counter != num_msg) {
         }
         oss.leave();
     }
