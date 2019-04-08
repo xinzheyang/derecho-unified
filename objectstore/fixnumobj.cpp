@@ -31,7 +31,7 @@ int main(int argc, char** argv) {
                                                                             if(oid == num_msg - 1) {
                                                                                 done = true;
                                                                             }
-									    counter++;
+                                                                            counter++;
                                                                         });
     // print some message
     std::cout << "Object store service started. Is replica:" << std::boolalpha << oss.isReplica()
@@ -43,23 +43,31 @@ int main(int argc, char** argv) {
     if(issender) {
         // create a pool of objects
         std::vector<objectstore::Object> objpool;
-        for(uint64_t i = 0; i < 10000; i++) {
-            char odata[msg_size];
-            srand(time(0)+i);
+        for(uint64_t i = 0; i < 10; i++) {
+            char* odata;
+
+            // use heap-allocated array to avoid stack overflow
+            if(msg_size > 1048576) {
+                odata = new char[msg_size];
+            } else {  //use stack-allocated array if size small
+                char odata2[msg_size];
+                odata = odata2;
+            }
+            srand(time(0) + i);
             for(int i = 0; i < msg_size; i++) {
                 odata[i] = '1' + (rand() % 74);
             }
-
             objpool.push_back(objectstore::Object(i, odata, msg_size + 1));
+            free(odata);
         }
         clock_gettime(CLOCK_REALTIME, &t_start);
         if(use_aio) {
             for(uint64_t i = 0; i < num_msg; i++) {
-                oss.aio_put(objpool[i % 10000]);
+                oss.aio_put(objpool[i % 10]);
             }
         } else {
             for(uint64_t i = 0; i < num_msg; i++) {
-                oss.bio_put(objpool[i % 10000]);
+                oss.bio_put(objpool[i % 10]);
             }
         }
         oss.bio_get(num_msg - 1);
