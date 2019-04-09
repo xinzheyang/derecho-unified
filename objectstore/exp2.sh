@@ -1,8 +1,8 @@
 #!/bin/bash
 rm -rf exptwo
-sizes=(10240 1024000 102400000)
+sizes=(10240 1048576 104857600)
 windows=(100 16 3)
-num_objs=(1000000 10000 1000)
+num_objs=(1000000 20000 100)
 
 for i in {0..2}
 do
