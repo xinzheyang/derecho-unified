@@ -47,7 +47,7 @@ int main(int argc, char** argv) {
             char* odata;
 
             // use heap-allocated array to avoid stack overflow
-            if(msg_size > 1048576) {
+            if(msg_size > 1000000) {
                 odata = new char[msg_size];
             } else {  //use stack-allocated array if size small
                 char odata2[msg_size];
@@ -58,7 +58,7 @@ int main(int argc, char** argv) {
                 odata[i] = '1' + (rand() % 74);
             }
             objpool.push_back(objectstore::Object(i, odata, msg_size + 1));
-            if(msg_size > 1048576) {
+            if(msg_size > 1000000) {
                 free(odata);
             }
         }
