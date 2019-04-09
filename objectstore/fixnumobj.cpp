@@ -58,7 +58,9 @@ int main(int argc, char** argv) {
                 odata[i] = '1' + (rand() % 74);
             }
             objpool.push_back(objectstore::Object(i, odata, msg_size + 1));
-            free(odata);
+            if(msg_size > 1048576) {
+                free(odata);
+            }
         }
         clock_gettime(CLOCK_REALTIME, &t_start);
         if(use_aio) {
