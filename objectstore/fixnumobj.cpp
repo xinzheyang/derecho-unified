@@ -85,9 +85,11 @@ int main(int argc, char** argv) {
         std::cout << "throughput:" << thp_ops << "op/s." << std::endl;
         std::cout << std::flush;
         oss.leave();
+	return 0;
     } else {
         while(counter != num_msg) {
         }
         oss.leave();
+	return 0;
     }
 }
