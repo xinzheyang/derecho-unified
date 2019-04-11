@@ -7,9 +7,11 @@
 
 #include "bytes_object.h"
 #include "derecho/derecho.h"
+#include <conf/conf.hpp>
 #include <mutils-serialization/SerializationSupport.hpp>
 #include <persistent/Persistent.hpp>
-#include <conf/conf.hpp>
+
+#define NUM_APP_ARGS (2)
 
 using derecho::Bytes;
 
@@ -32,16 +34,16 @@ public:
 };
 
 int main(int argc, char* argv[]) {
-    if(argc < 3) {
-        std::cout << "Usage:" << argv[0] << " <num_of_nodes> <count> [configuration options...]" << std::endl;
+    if((argc < (NUM_APP_ARGS + 1)) || ((argc > (NUM_APP_ARGS + 1)) && strcmp("--", argv[argc - NUM_APP_ARGS - 1]))) {
+        std::cout << "Usage:" << argv[0] << " [ derecho-config-list -- ] <num_of_nodes> <count>" << std::endl;
         return -1;
     }
 
     derecho::Conf::initialize(argc, argv);
 
-    int num_of_nodes = std::stoi(argv[1]);
-    uint64_t max_msg_size = derecho::getConfUInt64(CONF_DERECHO_MAX_PAYLOAD_SIZE);
-    int count = std::stoi(argv[2]);
+    int num_of_nodes = std::stoi(argv[argc - 2]);
+    uint64_t max_msg_size = derecho::getConfUInt64(CONF_DERECHO_MAX_PAYLOAD_SIZE) - 128;
+    int count = std::stoi(argv[argc - 1]);
 
     derecho::SubgroupInfo subgroup_info{[num_of_nodes](
             const std::vector<std::type_index>& subgroup_type_order,
@@ -66,7 +68,7 @@ int main(int argc, char* argv[]) {
 
     auto ba_factory = [](PersistentRegistry*) { return std::make_unique<TestObject>(); };
 
-    derecho::Group<TestObject> group({},subgroup_info,nullptr,std::vector<derecho::view_upcall_t>{},ba_factory);
+    derecho::Group<TestObject> group({}, subgroup_info, nullptr, std::vector<derecho::view_upcall_t>{}, ba_factory);
     std::cout << "Finished constructing/joining Group" << std::endl;
 
     derecho::Replicated<TestObject>& handle = group.get_subgroup<TestObject>();
