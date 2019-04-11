@@ -99,10 +99,10 @@ int main(int argc, char* argv[]) {
 
     int64_t nsec = ((int64_t)t2.tv_sec - t1.tv_sec) * 1000000000 + t2.tv_nsec - t1.tv_nsec;
     double msec = (double)nsec / 1000000;
-    double thp_gbps = ((double)count * max_msg_size * 8) / nsec;
+    double thp_gbps = ((double)count * max_msg_size) / nsec;
     double thp_ops = ((double)count * 1000000000) / nsec;
     std::cout << "timespan:" << msec << " millisecond." << std::endl;
-    std::cout << "throughput:" << thp_gbps << "Gbit/s." << std::endl;
+    std::cout << "throughput:" << thp_gbps << "GB/s." << std::endl;
     std::cout << "throughput:" << thp_ops << "ops." << std::endl;
 
     std::cout << "Reached end of main(), entering infinite loop so program doesn't exit" << std::endl;
