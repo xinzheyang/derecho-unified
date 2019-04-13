@@ -44,7 +44,6 @@ int main(int argc, char* argv[]) {
 
     derecho::Conf::initialize(argc, argv);
 
-    
     const uint num_nodes = std::stoi(argv[argc - 3]);
     const uint64_t max_msg_size = derecho::getConfUInt64(CONF_DERECHO_MAX_PAYLOAD_SIZE) - 128;
     const uint num_senders_selector = std::stoi(argv[argc - 2]);
@@ -57,7 +56,7 @@ int main(int argc, char* argv[]) {
                                &done,
                                &num_nodes,
                                num_senders_selector,
-                               num_delivered = 0u](uint32_t subgroup, uint32_t sender_id, long long int index, std::optional<std::pair<char*, long long int>> data, persistent::version_t ver) mutable {
+                               num_delivered = 0u ](uint32_t subgroup, uint32_t sender_id, long long int index, std::optional<std::pair<char*, long long int>> data, persistent::version_t ver) mutable {
         // increment the total number of messages delivered
         ++num_delivered;
         if(num_senders_selector == 0) {
@@ -76,20 +75,20 @@ int main(int argc, char* argv[]) {
     };
 
     derecho::SubgroupInfo subgroup_info{[num_senders_selector, num_nodes](
-                                                const std::vector<std::type_index>& subgroup_type_order,
-                                                const std::unique_ptr<derecho::View>& prev_view, derecho::View& curr_view) {
-        if(curr_view.num_members < num_nodes) {
+            const std::vector<std::type_index>& subgroup_type_order,
+            const std::unique_ptr<derecho::View>& prev_view, derecho::View& curr_view) {
+        auto num_members = curr_view.members.size();
+        if(num_members < num_nodes) {
             std::cout << "not enough members yet:" << curr_view.num_members << " < " << num_nodes << std::endl;
             throw derecho::subgroup_provisioning_exception();
         }
         derecho::subgroup_shard_layout_t subgroup_layout(1);
-        auto num_members = curr_view.members.size();
 
         // all senders case
         if(num_senders_selector == 0) {
             // a call to make_subview without the sender information
             // defaults to all members sending
-            subgroup_layout[0].emplace_back(curr_view.make_subview(curr_view.members, mode));
+            subgroup_layout[0].emplace_back(curr_view.make_subview(curr_view.members));
         } else {
             // configure the number of senders
             vector<int> is_sender(num_members, 1);
@@ -111,7 +110,7 @@ int main(int argc, char* argv[]) {
         curr_view.next_unassigned_rank = curr_view.members.size();
         //Since we know there is only one subgroup type, just put a single entry in the map
         derecho::subgroup_allocation_map_t subgroup_allocation;
-        subgroup_allocation.emplace(std::type_index(typeid(TestObjecet)), std::move(subgroup_layout));
+        subgroup_allocation.emplace(std::type_index(typeid(TestObject)), std::move(subgroup_layout));
         return subgroup_allocation;
     }};
 
@@ -129,7 +128,7 @@ int main(int argc, char* argv[]) {
     uint32_t node_rank = group.get_my_rank();
     // this function sends all the messages
     auto send_all = [&]() {
-        for(int i = 0; i < num_messages; i++) {
+        for(uint i = 0; i < num_messages; i++) {
             //handle.ordered_send<RPC_NAME(fun)>(str_1k);
             handle.ordered_send<RPC_NAME(bytes_fun)>(bytes);
         }
@@ -154,13 +153,13 @@ int main(int argc, char* argv[]) {
     while(!done) {
     }
 
-//     if(node_rank == 0) {
-//         derecho::rpc::QueryResults<bool> results = handle.ordered_send<RPC_NAME(finishing_call)>(0);
-//         std::cout << "waiting for response..." << std::endl;
-// #pragma GCC diagnostic ignored "-Wunused-variable"
-//         decltype(results)::ReplyMap& replies = results.get();
-// #pragma GCC diagnostic pop
-//     }
+    //     if(node_rank == 0) {
+    //         derecho::rpc::QueryResults<bool> results = handle.ordered_send<RPC_NAME(finishing_call)>(0);
+    //         std::cout << "waiting for response..." << std::endl;
+    // #pragma GCC diagnostic ignored "-Wunused-variable"
+    //         decltype(results)::ReplyMap& replies = results.get();
+    // #pragma GCC diagnostic pop
+    //     }
 
     clock_gettime(CLOCK_REALTIME, &t2);
     free(bbuf);
