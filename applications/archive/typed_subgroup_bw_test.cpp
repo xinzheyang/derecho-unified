@@ -14,6 +14,9 @@
 #define NUM_APP_ARGS (3)
 
 using derecho::Bytes;
+using std::vector;
+
+using namespace derecho;
 
 /**
  * RPC Object with a single function that accepts a string
@@ -35,14 +38,14 @@ public:
 
 int main(int argc, char* argv[]) {
     if((argc < (NUM_APP_ARGS + 1)) || ((argc > (NUM_APP_ARGS + 1)) && strcmp("--", argv[argc - NUM_APP_ARGS - 1]))) {
-        std::cout << "Usage:" << argv[0] << " [ derecho-config-list -- ] <num_of_nodes> <num_senders_selector (0 - all senders, 1 - half senders, 2 - one sender)> <num_messages>" << std::endl;
+        std::cout << "Usage:" << argv[0] << " [ derecho-config-list -- ] <num_nodes> <num_senders_selector (0 - all senders, 1 - half senders, 2 - one sender)> <num_messages>" << std::endl;
         return -1;
     }
 
     derecho::Conf::initialize(argc, argv);
 
     
-    const uint num_of_nodes = std::stoi(argv[argc - 3]);
+    const uint num_nodes = std::stoi(argv[argc - 3]);
     const uint64_t max_msg_size = derecho::getConfUInt64(CONF_DERECHO_MAX_PAYLOAD_SIZE) - 128;
     const uint num_senders_selector = std::stoi(argv[argc - 2]);
     const uint num_messages = std::stoi(argv[argc - 1]);
@@ -72,11 +75,11 @@ int main(int argc, char* argv[]) {
         }
     };
 
-    derecho::SubgroupInfo subgroup_info{[num_senders_selector, num_of_nodes](
+    derecho::SubgroupInfo subgroup_info{[num_senders_selector, num_nodes](
                                                 const std::vector<std::type_index>& subgroup_type_order,
                                                 const std::unique_ptr<derecho::View>& prev_view, derecho::View& curr_view) {
-        if(curr_view.num_members < num_of_nodes) {
-            std::cout << "not enough members yet:" << curr_view.num_members << " < " << num_of_nodes << std::endl;
+        if(curr_view.num_members < num_nodes) {
+            std::cout << "not enough members yet:" << curr_view.num_members << " < " << num_nodes << std::endl;
             throw derecho::subgroup_provisioning_exception();
         }
         derecho::subgroup_shard_layout_t subgroup_layout(1);
@@ -86,7 +89,7 @@ int main(int argc, char* argv[]) {
         if(num_senders_selector == 0) {
             // a call to make_subview without the sender information
             // defaults to all members sending
-            subgroup_vector[0].emplace_back(curr_view.make_subview(curr_view.members, mode));
+            subgroup_layout[0].emplace_back(curr_view.make_subview(curr_view.members, mode));
         } else {
             // configure the number of senders
             vector<int> is_sender(num_members, 1);
@@ -103,12 +106,12 @@ int main(int argc, char* argv[]) {
                 }
             }
             // provide the sender information in a call to make_subview
-            subgroup_vector[0].emplace_back(curr_view.make_subview(curr_view.members, mode, is_sender));
+            subgroup_layout[0].emplace_back(curr_view.make_subview(curr_view.members, Mode::ORDERED, is_sender));
         }
         curr_view.next_unassigned_rank = curr_view.members.size();
         //Since we know there is only one subgroup type, just put a single entry in the map
         derecho::subgroup_allocation_map_t subgroup_allocation;
-        subgroup_allocation.emplace(std::type_index(typeid(RawObject)), std::move(subgroup_vector));
+        subgroup_allocation.emplace(std::type_index(typeid(TestObjecet)), std::move(subgroup_layout));
         return subgroup_allocation;
     }};
 
@@ -143,7 +146,7 @@ int main(int argc, char* argv[]) {
             send_all();
         }
     } else {
-        if(node_rank == num_of_nodes - 1) {
+        if(node_rank == num_nodes - 1) {
             send_all();
         }
     }
