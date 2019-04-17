@@ -14,7 +14,6 @@ addons:
 before_install:
   - sudo apt-get install librdmacm-dev
   - sudo apt-get install libibverbs-dev
-  - sudo ibv_devices
   - export CC=gcc-7
   - export CXX=g++-7
   
