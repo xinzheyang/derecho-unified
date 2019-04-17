@@ -21,8 +21,8 @@ script:
   
 install:
   - chmod +x scripts/prerequisites/*.sh
-  - ./install-libfabric.sh
-  - ./install-spdlog.sh
-  - ./install-mutils.sh
-  - ./install-mutils-containers.sh
-  - ./install-mutils-tasks.sh
+  - sudo scripts/prerequisites/install-libfabric.sh
+  - sudo scripts/prerequisites/install-spdlog.sh
+  - sudo scripts/prerequisites/install-mutils.sh
+  - sudo scripts/prerequisites/install-mutils-containers.sh
+  - sudo scripts/prerequisites/install-mutils-tasks.sh
