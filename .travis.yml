@@ -1,0 +1,28 @@
+dist: trusty
+language: cpp
+os: linux
+sudo: required
+
+before_install:
+  - sudo apt-get install librdmacm-dev
+  - sudo apt-get install libibverbs-dev
+  
+addons:
+  apt:
+    sources:
+      - ubuntu-toolchain-r-test
+    packages:
+      - g++-7
+      - gcc-7
+      - cmake
+script:
+  - export CC=gcc-7
+  - export CXX=g++-7
+  
+install:
+  - chmod +x scripts/prerequisites/*.sh
+  - ./install-libfabric.sh
+  - ./install-spdlog.sh
+  - ./install-mutils.sh
+  - ./install-mutils-containers.sh
+  - ./install-mutils-tasks.sh
