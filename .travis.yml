@@ -12,6 +12,7 @@ addons:
       - gcc-7
 
 before_install:
+  - ifconfig
   - sudo apt-get install librdmacm-dev
   - sudo apt-get install libibverbs-dev
   - export CC=gcc-7
