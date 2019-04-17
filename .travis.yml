@@ -2,10 +2,6 @@ dist: trusty
 language: cpp
 os: linux
 sudo: required
-
-before_install:
-  - sudo apt-get install librdmacm-dev
-  - sudo apt-get install libibverbs-dev
   
 addons:
   apt:
@@ -14,7 +10,10 @@ addons:
     packages:
       - g++-7
       - gcc-7
-script:
+
+before_install:
+  - sudo apt-get install librdmacm-dev
+  - sudo apt-get install libibverbs-dev
   - export CC=gcc-7
   - export CXX=g++-7
   
