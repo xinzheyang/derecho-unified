@@ -52,5 +52,5 @@ script:
 # unit tests
   - cd ../unit_tests/
   - DERECHO_CONF_FILE=~/derecho0.cfg ./cooked_send_test 2 & DERECHO_CONF_FILE=~/derecho1.cfg ./cooked_send_test 2
-  - DERECHO_CONF_FILE=~/derecho0.cfg ./delivery_order_test ~/derecho0.cfg 2 1000 10240 & DERECHO_CONF_FILE=~/derecho1.cfg ./delivery_order_test ~/derecho1.cfg 2 1000 10240
+#  - DERECHO_CONF_FILE=~/derecho0.cfg ./delivery_order_test ~/derecho0.cfg 2 1000 10240 & DERECHO_CONF_FILE=~/derecho1.cfg ./delivery_order_test ~/derecho1.cfg 2 1000 10240
   - DERECHO_CONF_FILE=~/derecho0.cfg ./subgroup_function_tester
