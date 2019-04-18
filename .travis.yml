@@ -2,21 +2,11 @@ dist: trusty
 language: cpp
 os: linux
 sudo: required
-    
-addons:
-  apt:
-    sources:
-      - ubuntu-toolchain-r-test
-    packages:
-      - g++-7
-      - gcc-7
 
 before_install:
   - ifconfig
   - sudo apt-get install librdmacm-dev
   - sudo apt-get install libibverbs-dev
-  - export CC=gcc-7
-  - export CXX=g++-7
   
 install:
   - chmod +x scripts/prerequisites/*.sh
@@ -34,8 +24,28 @@ before_script:
 
 matrix:
   include:
-    - env: BUILD_TYPE=Release
+    # build with gcc7 on Release/Debug
+    - env: BUILD_TYPE=Release CC=gcc-7 CXX=g++-7
+      addons: &gcc7
+        apt:
+          sources:
+            - ubuntu-toolchain-r-test
+          packages:
+            - g++-7
+            - gcc-7
     - env: BUILD_TYPE=Debug
+      addons: *gcc7
+      
+    # build with clang7 on Release/Debug
+    - env: BUILD_TYPE=Release CC=clang-7.0 CXX=clang++-7.0
+      addons: &clang7
+        apt:
+          sources:
+            - llvm-toolchain-trusty-7
+          packages:
+            - clang-7
+    - env: BUILD_TYPE=Debug
+      addons: *clang7
 
 script:
 # build Derecho
