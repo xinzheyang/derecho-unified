@@ -37,16 +37,16 @@ matrix:
       addons: *gcc7
       
     # build with clang7 on Release/Debug
-    - env: BUILD_TYPE=Release CLANG_VERSION=7.0
-      addons: &clang70
+    - env: BUILD_TYPE=Release CLANG_VERSION=7
+      addons: &clang7
         apt:
           sources:
-            - llvm-toolchain-trusty-7.0
+            - llvm-toolchain-trusty-7
             - ubuntu-toolchain-r-test
           packages:
-            - clang-7.0
-    - env: BUILD_TYPE=Debug CLANG_VERSION=7.0
-      addons: *clang70
+            - clang-7
+    - env: BUILD_TYPE=Debug CLANG_VERSION=7
+      addons: *clang7
 
 script:
 # build Derecho
