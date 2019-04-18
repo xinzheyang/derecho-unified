@@ -33,7 +33,7 @@ matrix:
           packages:
             - g++-7
             - gcc-7
-    - env: BUILD_TYPE=Debug
+    - env: BUILD_TYPE=Debug CC=gcc-7 CXX=g++-7
       addons: *gcc7
       
     # build with clang7 on Release/Debug
@@ -44,7 +44,7 @@ matrix:
             - llvm-toolchain-trusty-7
           packages:
             - clang-7
-    - env: BUILD_TYPE=Debug
+    - env: BUILD_TYPE=Debug CC=clang-7.0 CXX=clang++-7.0
       addons: *clang7
 
 script:
