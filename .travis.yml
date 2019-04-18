@@ -38,3 +38,10 @@ script:
   - cmake -DCMAKE_BUILD_TYPE=Release ..
   - make -j `lscpu | grep "^CPU(" | awk '{print $2}'`
   - sudo make install
+  - wget https://raw.githubusercontent.com/xinzheyang/derecho-unified/travis/derecho0.cfg -P ~
+  - wget https://raw.githubusercontent.com/xinzheyang/derecho-unified/travis/derecho1.cfg -P ~
+  - sed -i "s/127.0.0.1/$(ifconfig eth0 | grep 'inet addr' | cut -d: -f2 | awk '{print $1}')/" ~/derecho0.cfg
+  - sed -i "s/127.0.0.1/$(ifconfig eth0 | grep 'inet addr' | cut -d: -f2 | awk '{print $1}')/" ~/derecho1.cfg
+  - cd src/applications/tests/performance_tests/
+  - DERECHO_CONF_FILE=~/derecho0.cfg ./bandwidth_test 2 2 1000 0 & DERECHO_CONF_FILE=~/derecho1.cfg ./bandwidth_test 2 2 1000 0
+  - cat data_derecho_bw
