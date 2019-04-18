@@ -32,11 +32,16 @@ before_script:
   - $CXX --version
   - cmake --version
 
+matrix:
+  include:
+    - env: BUILD_TYPE=Release
+    - env: BUILD_TYPE=Debug
+
 script:
 # build Derecho
-  - mkdir Release
-  - cd Release
-  - cmake -DCMAKE_BUILD_TYPE=Release ..
+  - mkdir $BUILD_TYPE
+  - cd $BUILD_TYPE
+  - cmake -DCMAKE_BUILD_TYPE=$BUILD_TYPE ..
   - make -j `lscpu | grep "^CPU(" | awk '{print $2}'`
   - sudo make install
   
