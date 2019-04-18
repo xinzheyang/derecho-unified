@@ -2,9 +2,6 @@ dist: trusty
 language: cpp
 os: linux
 sudo: required
-cache: 
-  directories:
-    - /usr/local/lib/
     
 addons:
   apt:
