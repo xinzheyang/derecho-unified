@@ -5,10 +5,10 @@ sudo: required
 
 before_install:
   - ifconfig
-  - sudo apt-get update
   - sudo apt-get install librdmacm-dev
   - sudo apt-get install libibverbs-dev
   - sudo apt-get install libspdlog-dev
+  - sudo apt-cache policy libspdlog-dev
   - if [ -n "$GCC_VERSION" ]; then export CXX="g++-${GCC_VERSION}" CC="gcc-${GCC_VERSION}"; fi
   - if [ -n "$CLANG_VERSION" ]; then export CXX="clang++-${CLANG_VERSION}" CC="clang-${CLANG_VERSION}"; fi
   - which $CXX
